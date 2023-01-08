@@ -23,31 +23,45 @@ struct ContentView: View {
     @State private var errorTitle = ""
     @State private var errorMessage = ""
     @State private var showingError = false
+    
+    @State private var score = 0
 
     var body: some View {
         NavigationView {
-            List {
-                Section {
-                    TextField("Enter your word", text: $newWord)
-                }
+            VStack {
+                List {
+                    Section {
+                        TextField("Enter your word", text: $newWord)
+                    }
 
-                Section {
-                    ForEach(usedWords, id: \.self) { word in
-                        HStack {
-                            Image(systemName: "\(word.count).circle")
-                            Text(word)
+                    Section {
+                        ForEach(usedWords, id: \.self) { word in
+                            HStack {
+                                Image(systemName: "\(word.count).circle")
+                                Text(word)
+                            }
                         }
                     }
                 }
+                .navigationTitle(rootWord)
+                .textInputAutocapitalization(.never)
+                .listStyle(InsetGroupedListStyle())
+                .onSubmit(addNewWord)
+                .onAppear(perform: startGame)
+                .alert(errorTitle, isPresented: $showingError) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(errorMessage)
+                }
+                
+                Text("Score \(score)")
             }
-            .navigationTitle(rootWord)
-            .textInputAutocapitalization(.never)
-            .onSubmit(addNewWord)
-            .onAppear(perform: startGame)
-            .alert(errorTitle, isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
+            .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    Button("Restart") {
+                        self.startGame()
+                    }
+                }
             }
         }
     }
@@ -78,7 +92,13 @@ struct ContentView: View {
             wordError(title: "Word is same as root word", message: "You can't use the root word!")
             return
         }
+        
+        guard isLongerThan2(word: answer) else {
+            wordError(title: "Word is too short", message: "You can't such a short word!")
+            return
+        }
 
+        score += answer.count
         withAnimation {
             usedWords.insert(answer, at: 0)
         }
@@ -86,6 +106,9 @@ struct ContentView: View {
     }
     
     func startGame() {
+        usedWords.removeAll()
+        score = 0
+        
         // 1. Find the URL for start.txt in our app bundle
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             // 2. Load start.txt into a string
@@ -133,6 +156,10 @@ struct ContentView: View {
     
     func isNotRoot(word: String) -> Bool {
         word != rootWord
+    }
+    
+    func isLongerThan2(word: String) -> Bool {
+        word.count > 2
     }
     
     func wordError(title: String, message: String) {
