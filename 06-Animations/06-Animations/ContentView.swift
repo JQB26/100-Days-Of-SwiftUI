@@ -12,44 +12,50 @@ struct ContentView: View {
     @State private var animationAmount2 = 0.0
     @State private var animationAmount3 = 1.0
     
+    @State private var enabled = false
+    
     var body: some View {
         VStack {
             Spacer()
             
-            Button("Tap Me") {
-                // animationAmount1 += 1
-            }
-            .padding(50)
-            .background(.blue)
-            .foregroundColor(.white)
-            .clipShape(Circle())
-            .overlay(
-                Circle()
-                    .stroke(.blue)
-                    .scaleEffect(animationAmount1)
-                    .opacity(2 - animationAmount1)
-                    .animation(
-                        .easeInOut(duration: 1)
-                            .repeatForever(autoreverses: false),
-                        value: animationAmount1
-                    )
-            )
-            .onAppear {
-                animationAmount1 = 2
-            }
-            
-            Spacer()
-            
-            Button("Tap Me") {
-                withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
-                    animationAmount2 += 360
+            HStack {
+                Button("Tap Me") {
+                    // animationAmount1 += 1
                 }
+                .padding(50)
+                .background(.blue)
+                .foregroundColor(.white)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(.blue)
+                        .scaleEffect(animationAmount1)
+                        .opacity(2 - animationAmount1)
+                        .animation(
+                            .easeInOut(duration: 1)
+                                .repeatForever(autoreverses: false),
+                            value: animationAmount1
+                        )
+                )
+                .onAppear {
+                    animationAmount1 = 2
+                }
+                
+                Spacer()
+                
+                Button("Tap Me") {
+                    withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
+                        animationAmount2 += 360
+                    }
+                }
+                .padding(50)
+                .background(.red)
+                .foregroundColor(.white)
+                .clipShape(Circle())
+                .rotation3DEffect(.degrees(animationAmount2), axis: (x: 0, y: 1, z: 0))
             }
-            .padding(50)
-            .background(.red)
-            .foregroundColor(.white)
-            .clipShape(Circle())
-            .rotation3DEffect(.degrees(animationAmount2), axis: (x: 0, y: 1, z: 0))
+            .padding()
+            
             
             Spacer()
             
@@ -63,7 +69,7 @@ struct ContentView: View {
                     
                 
                 Button("Tap Me") {
-                    animationAmount3 += 1
+//                    animationAmount3 += 1
                 }
                 .padding(40)
                 .background(.green)
@@ -71,6 +77,19 @@ struct ContentView: View {
                 .clipShape(Circle())
                 .scaleEffect(animationAmount3)
             }
+            
+            Spacer()
+            
+            Button("Tap me") {
+                enabled.toggle()
+            }
+            .padding(50)
+            .background(enabled ? .yellow : .brown)
+            .foregroundColor(enabled ? .black : .white)
+            .animation(.default, value: enabled)
+            .clipShape(RoundedRectangle(cornerRadius: enabled ? 60 : 0))
+            .animation(.interpolatingSpring(stiffness: 10, damping: 1), value: enabled)
+            
             
             Spacer()
         }
